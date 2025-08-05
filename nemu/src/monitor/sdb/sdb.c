@@ -52,6 +52,23 @@ static int cmd_q(char *args) {
   return -1;
 }
 
+static int cmd_si(char *args){
+  /* extract the first argument */
+  char *arg = strtok(NULL, " ");
+  /* Number of single-step execution instructions */
+  int i;
+
+  if (arg == NULL) {
+    /* no argument given */
+    i = 1;
+  }
+  else {
+    sscanf (arg, "%d", &i);
+  }
+  cpu_exec(i);
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 static struct {
