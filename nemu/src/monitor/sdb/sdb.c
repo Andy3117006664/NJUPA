@@ -69,6 +69,55 @@ static int cmd_si(char *args){
   return 0;
 }
 
+static int cmd_x(char *args){
+  Log("args is %s",args);
+  int length;
+  paddr_t paddr;
+  sscanf(args,"%d 0x%08x",&length,&paddr);
+  // int length = atoi(strtok(args," "));
+  // paddr t paddr = atoi(strtok(NULL," "));
+  Log("length is %d and paddr is ox%08x",length,paddr);
+  for(int i=0; i<length;i++){
+    printf("0x%08x  0x%08x\n",i*4+paddr,paddr_read(paddr+4*i,4));
+  }
+  return 0;
+}
+// static int cmd_x(char *args) {
+//   char *arg = strtok(NULL, " ");
+  
+//   if (arg == NULL) {
+//     printf("Usage: x N EXPR - scan N 4-byte words starting from address EXPR\n");
+//     return 0;
+//   }
+  
+//   int n = atoi(arg);
+//   if (n <= 0) {
+//     printf("Invalid number: %s\n", arg);
+//     return 0;
+//   }
+  
+//   char *expr_str = strtok(NULL, "");
+//   if (expr_str == NULL) {
+//     printf("Usage: x N EXPR - scan N 4-byte words starting from address EXPR\n");
+//     return 0;
+//   }
+  
+//   bool success = true;
+//   word_t addr = expr(expr_str, &success);
+  
+//   if (!success) {
+//     printf("Invalid expression: %s\n", expr_str);
+//     return 0;
+//   }
+  
+//   printf("Memory scan from 0x%08lx:\n", addr);
+//   for (int i = 0; i < n; i++) {
+//     word_t data = paddr_read(addr + i * 4, 4);
+//     printf("0x%08lx: 0x%08lx\n", addr + i * 4, data);
+//   }
+  
+//   return 0;
+// }
 static int cmd_help(char *args);
 
 static struct {
@@ -81,7 +130,9 @@ static struct {
   { "q", "Exit NEMU", cmd_q },
 
   /* TODO: Add more commands */
-
+  { "si", "Single step execution", cmd_si },
+  { "info", "Display information about the CPU", cmd_info },
+  { "x", "Scan memory", cmd_x },
 };
 
 #define NR_CMD ARRLEN(cmd_table)

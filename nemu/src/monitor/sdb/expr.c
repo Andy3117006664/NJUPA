@@ -22,6 +22,7 @@
 
 enum {
   TK_NOTYPE = 256, TK_EQ,
+  TK_NUMBER, TK_NEGATIVE
 
   /* TODO: Add more token types */
 
@@ -39,6 +40,12 @@ static struct rule {
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
   {"==", TK_EQ},        // equal
+  {"\\-", '-'},         // sub
+  {"\\(", '('},           // left parenthesis
+  {"\\)", ')'},           // right parenthesis
+  {"\\*", '*'},         // multiply
+  {"/", '/'},           // division
+  {"(0u?|[1-9][0-9]*u?)", TK_NUMBER}, // decimal integer
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -95,7 +102,23 @@ static bool make_token(char *e) {
          */
 
         switch (rules[i].token_type) {
-          default: TODO();
+          case TK_NOTYPE:
+            break;
+          case TK_NUMBER:
+            //Assert(nr_token < 32, "The tokens array has insufficient storage space.");
+            Assert(nr_token < 65536, "The tokens array has insufficient storage space.");
+            Assert(substr_len < 32, "token is too long");
+            strncpy(tokens[nr_token].str, substr_start, substr_len);
+            tokens[nr_token].type = rules[i].token_type;
+            tokens[nr_token].str[substr_len] = '\0';
+            nr_token++;
+            break;
+          default:
+            //Assert(nr_token < 32, "The tokens array has insufficient storage space.");
+            Assert(nr_token < 65536, "The tokens array has insufficient storage space.");
+            tokens[nr_token].type = rules[i].token_type;
+            nr_token++;
+            break;
         }
 
         break;
