@@ -134,8 +134,24 @@ static bool make_token(char *e) {
   return true;
 }
 
+word_t eval(int p, int q, bool *success);
+ 
+void markNegative() {
+    int i;
+ 
+    for (i = 0 ; i < nr_token; i++){
+        if (tokens[i].type == TK_NUMBER) continue;
+        if (tokens[i].type == (int)('-') && (i == 0 || 
+            (tokens[i - 1].type != TK_NUMBER && tokens[i - 1].type != (int)(')')))){
+                tokens[i].type = TK_NEGATIVE;
+        }
+    }
+}
 
 word_t expr(char *e, bool *success) {
+  bool evalSuccess;
+  word_t exprAns;
+
   if (!make_token(e)) {
     *success = false;
     return 0;

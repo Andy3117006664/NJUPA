@@ -17,6 +17,7 @@
 #include <cpu/cpu.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <memory/paddr.h>
 #include "sdb.h"
 
 static int is_batch_mode = false;
@@ -41,6 +42,10 @@ static char* rl_gets() {
 
   return line_read;
 }
+
+static int cmd_help(char *args);
+static int cmd_info(char *args);
+static int cmd_x(char *args);
 
 static int cmd_c(char *args) {
   cpu_exec(-1);
@@ -82,6 +87,16 @@ static int cmd_x(char *args){
   }
   return 0;
 }
+
+static int cmd_info(char *args) {
+  char *arg = strtok(NULL, " ");
+  if (arg && strcmp(arg, "r") == 0) {
+    isa_reg_display();
+  } else {
+    printf("Usage: info r\n");
+  }
+  return 0;
+}
 // static int cmd_x(char *args) {
 //   char *arg = strtok(NULL, " ");
   
@@ -118,7 +133,7 @@ static int cmd_x(char *args){
   
 //   return 0;
 // }
-static int cmd_help(char *args);
+
 
 static struct {
   const char *name;
