@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
   char exprbuf[65536];
   uint32_t result;
  
-  file = fopen("$NEMU_HOME/tools/gen-expr/build/input", "r");
+  file = fopen("$/home/andy0112/NJUPA/nemu/tools/gen-expr/build/input", "r");
   assert(file != NULL);
   while (fgets(line, 65536 + 128, file) != NULL)
   {
