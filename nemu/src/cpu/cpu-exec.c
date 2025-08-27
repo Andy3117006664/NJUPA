@@ -41,10 +41,10 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 }
 
 static void exec_once(Decode *s, vaddr_t pc) {
-  s->pc = pc;
-  s->snpc = pc;
-  isa_exec_once(s);
-  cpu.pc = s->dnpc;
+  s->pc = pc;  // 设置当前PC
+  s->snpc = pc;  // 设置静态下一PC
+  isa_exec_once(s);  // 调用ISA相关的指令执行函数
+  cpu.pc = s->dnpc;  // 更新CPU的PC为动态下一PC
 #ifdef CONFIG_ITRACE
   char *p = s->logbuf;
   p += snprintf(p, sizeof(s->logbuf), FMT_WORD ":", s->pc);
@@ -72,23 +72,23 @@ static void exec_once(Decode *s, vaddr_t pc) {
 }
 
 static void execute(uint64_t n) {
-  Decode s;
-  for (;n > 0; n --) {
-    exec_once(&s, cpu.pc);
-    g_nr_guest_inst ++;
-    trace_and_difftest(&s, cpu.pc);
-    if (nemu_state.state != NEMU_RUNNING) break;
-    IFDEF(CONFIG_DEVICE, device_update());
+  Decode s;  // 指令解码结构体
+  for (;n > 0; n --) {  // 循环执行n条指令
+    exec_once(&s, cpu.pc);  // 执行一条指令
+    g_nr_guest_inst ++;  // 指令计数器递增
+    trace_and_difftest(&s, cpu.pc);  // 指令跟踪和差分测试
+    if (nemu_state.state != NEMU_RUNNING) break;  // 检查状态，非运行状态则退出
+    IFDEF(CONFIG_DEVICE, device_update());  // 更新设备状态
   }
 }
 
 static void statistic() {
-  IFNDEF(CONFIG_TARGET_AM, setlocale(LC_NUMERIC, ""));
+  IFNDEF(CONFIG_TARGET_AM, setlocale(LC_NUMERIC, ""));  // 设置数字格式化
 #define NUMBERIC_FMT MUXDEF(CONFIG_TARGET_AM, "%", "%'") PRIu64
-  Log("host time spent = " NUMBERIC_FMT " us", g_timer);
-  Log("total guest instructions = " NUMBERIC_FMT, g_nr_guest_inst);
-  if (g_timer > 0) Log("simulation frequency = " NUMBERIC_FMT " inst/s", g_nr_guest_inst * 1000000 / g_timer);
-  else Log("Finish running in less than 1 us and can not calculate the simulation frequency");
+  Log("host time spent = " NUMBERIC_FMT " us", g_timer);  // 打印主机执行时间
+  Log("total guest instructions = " NUMBERIC_FMT, g_nr_guest_inst);  // 打印总指令数
+  if (g_timer > 0) Log("simulation frequency = " NUMBERIC_FMT " inst/s", g_nr_guest_inst * 1000000 / g_timer);  // 计算模拟频率
+  else Log("Finish running in less than 1 us and can not calculate the simulation frequency");  // 执行时间过短
 }
 
 void assert_fail_msg() {
@@ -96,33 +96,33 @@ void assert_fail_msg() {
   statistic();
 }
 
-/* Simulate how the CPU works. */
+/* CPU执行入口函数 - 模拟CPU工作流程 */
 void cpu_exec(uint64_t n) {
-  g_print_step = (n < MAX_INST_TO_PRINT);
+  g_print_step = (n < MAX_INST_TO_PRINT);  // 根据指令数决定是否开启单步打印模式
   switch (nemu_state.state) {
     case NEMU_END: case NEMU_ABORT: case NEMU_QUIT:
       printf("Program execution has ended. To restart the program, exit NEMU and run again.\n");
-      return;
-    default: nemu_state.state = NEMU_RUNNING;
+      return;  // 程序已结束，直接返回
+    default: nemu_state.state = NEMU_RUNNING;  // 设置为运行状态
   }
 
-  uint64_t timer_start = get_time();
+  uint64_t timer_start = get_time();  // 记录执行开始时间
 
-  execute(n);
+  execute(n);  // 核心执行循环 - 执行n条指令
 
-  uint64_t timer_end = get_time();
-  g_timer += timer_end - timer_start;
+  uint64_t timer_end = get_time();  // 记录执行结束时间
+  g_timer += timer_end - timer_start;  // 累计执行时间
 
   switch (nemu_state.state) {
-    case NEMU_RUNNING: nemu_state.state = NEMU_STOP; break;
+    case NEMU_RUNNING: nemu_state.state = NEMU_STOP; break;  // 正常执行完毕，设为停止状态
 
     case NEMU_END: case NEMU_ABORT:
       Log("nemu: %s at pc = " FMT_WORD,
           (nemu_state.state == NEMU_ABORT ? ANSI_FMT("ABORT", ANSI_FG_RED) :
            (nemu_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
             ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
-          nemu_state.halt_pc);
+          nemu_state.halt_pc);  // 打印程序结束信息和PC地址
       // fall through
-    case NEMU_QUIT: statistic();
+    case NEMU_QUIT: statistic();  // 打印性能统计信息
   }
 }

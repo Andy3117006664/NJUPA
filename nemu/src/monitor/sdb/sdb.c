@@ -35,9 +35,14 @@ static char* rl_gets() {
   }
 
   line_read = readline("(nemu) ");
+  //在这里，"(nemu) " 是一个提示符，显示在用户输入之前。
+  //readline 函数会等待用户输入，并返回用户输入的字符串。
+  //如果用户输入了内容，readline 函数会将内容存储在 line_read 指向的内存中。
+  //如果用户输入了空行（即只按下了回车键），readline 函数会返回 NULL。
 
   if (line_read && *line_read) {
     add_history(line_read);
+    //如果成功读取了用户输入，并且用户输入的字符串不为空，则将该输入添加到历史记录中。
   }
 
   return line_read;
