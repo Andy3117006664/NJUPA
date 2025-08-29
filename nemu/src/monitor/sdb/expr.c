@@ -290,7 +290,7 @@ word_t eval(int p, int q, bool *success){
     word_t val2;
     struct stack_node stack[1024];
     int main_op_idx = -1;
-    int main_op_pri = 1e9;
+    // int main_op_pri = 1e9;
     
     /* TODO(human): 实现主运算符查找算法
      * 
@@ -316,36 +316,47 @@ word_t eval(int p, int q, bool *success){
      * - +是最低优先级，因此是主运算符
      */
     
-    int paren_depth = 0;
+    // int paren_depth = 0;
     for (i = p; i <= q; i++){
         Assert(top < 1024, "stack in eval function over overflow!");
         if (tokens[i].type == TK_NUMBER) continue;
-        if (tokens[i].type == (int)('(')) { paren_depth++; continue; }
-        if (tokens[i].type == (int)(')')) { paren_depth--; continue; }
-        if (paren_depth > 0) continue; // 括号内运算符跳过
-
-        // 运算符候选
-        int cur_type = tokens[i].type;
-        int cur_pri = priority(cur_type);
-
-        if (cur_pri < main_op_pri){
-          main_op_pri = cur_pri;
-          main_op_idx = i;
-        } else if (cur_pri == main_op_pri){
-          // 结合性处理：二元运算符左结合，选择更靠右的；一元负号右结合，选择更靠左的
-          bool is_right_assoc = (cur_type == TK_NEGATIVE);
-          if (!is_right_assoc){
-            main_op_idx = i; // 左结合：取更右侧
-          }
+        if (top < 0){
+          top++;
+          stack[top].idx = i;
+          stack[top].type = tokens[i].type;
+          continue;
         }
+        if (tokens[i].type == (int)('(')){
+          top++;
+          stack[top].idx = i;
+          stack[top].type = tokens[i].type;
+          continue;
+        }
+        if (tokens[i].type == (int)(')')){
+          // 就一直弹栈，直到遇到匹配的左括号
+          // 这意味着括号内所有运算符都被排除了候选资格
+          while (top >=0 && stack[top].type != '('){ 
+            top--;
+          }
+          top--;
+          continue;
+        }
+        while (top >= 0 && priority(tokens[i].type) <= priority(stack[top].type)){
+          if (tokens[i].type == stack[top].type && tokens[i].type == TK_NEGATIVE){
+            break;
+        }
+      }
+      top++;
+      stack[top].idx = i;
+      stack[top].type = tokens[i].type;
     }
 
     Assert(top < 1024, "stack in eval function over overflow!");
     if (main_op_idx < 0){
       *success = false;
       return 0;
-    }
-
+    } 
+  
     /* TODO(human): 根据找到的主运算符进行递归求值
      * 
      * 任务：使用分治算法进行递归求值
