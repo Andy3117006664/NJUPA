@@ -105,8 +105,8 @@ static bool make_token(char *e) {
           case TK_NOTYPE:
             break;
           case TK_NUMBER:
-            Assert(nr_token < 32, "The tokens array has insufficient storage space.");
-            // Assert(nr_token < 65536, "The tokens array has insufficient storage space.");
+            //Assert(nr_token < 32, "The tokens array has insufficient storage space.");
+            Assert(nr_token < 65536, "The tokens array has insufficient storage space.");
             Assert(substr_len < 32, "token is too long");
             strncpy(tokens[nr_token].str, substr_start, substr_len);
             tokens[nr_token].type = rules[i].token_type;
@@ -114,8 +114,8 @@ static bool make_token(char *e) {
             nr_token++;
             break;
           default:
-            Assert(nr_token < 32, "The tokens array has insufficient storage space.");
-            // Assert(nr_token < 65536, "The tokens array has insufficient storage space.");
+            //Assert(nr_token < 32, "The tokens array has insufficient storage space.");
+            Assert(nr_token < 65536, "The tokens array has insufficient storage space.");
             tokens[nr_token].type = rules[i].token_type;
             nr_token++;
             break;
