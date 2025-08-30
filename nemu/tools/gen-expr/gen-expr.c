@@ -52,7 +52,7 @@ static void gen_num(){
     len += 1;
   if (len == 1){
     gen((char)(choose(10) + '0'));
-    return 0;
+    return ;
   }
   uint32_t firstNum = choose(10);
   /*Numbers cannot start with 0*/
