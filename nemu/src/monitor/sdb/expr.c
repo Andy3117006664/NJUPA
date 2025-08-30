@@ -74,8 +74,8 @@ typedef struct token {
   char str[32];
 } Token;
 
-#define MAX_TOKEN_LENGTH 65536
-static Token tokens[32] __attribute__((used)) = {};
+#define MAX_TOKENS 65536
+static Token tokens[MAX_TOKENS] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
 static bool make_token(char *e) {
@@ -106,7 +106,7 @@ static bool make_token(char *e) {
           case TK_NOTYPE:
             break;
           case TK_NUMBER:
-            if (nr_token >= MAX_TOKEN_LENGTH) {
+            if (nr_token >= MAX_TOKENS) {
               printf("too many tokens\n");
               return false;
             }
@@ -119,7 +119,7 @@ static bool make_token(char *e) {
             nr_token++;
             break;
           default:
-            if (nr_token >= MAX_TOKEN_LENGTH) {
+            if (nr_token >= MAX_TOKENS) {
               printf("too many tokens\n");
               return false;
             }
